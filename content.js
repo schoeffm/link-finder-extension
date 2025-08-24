@@ -6,6 +6,9 @@ class TypeAheadFind {
     this.selectedIndex = 0;
     this.searchContainer = null;
     this.originalActiveElement = null;
+    this.mnemonicElements = [];
+    this.mnemonicMap = new Map();
+    this.mnemonicsEnabled = false;
     
     this.init();
   }
@@ -13,7 +16,15 @@ class TypeAheadFind {
   init() {
     document.addEventListener('keydown', this.handleKeyDown.bind(this));
     document.addEventListener('keyup', this.handleKeyUp.bind(this));
+    this.loadSettings();
     this.createSearchUI();
+  }
+
+  loadSettings() {
+    chrome.storage.sync.get(['mnemonicsEnabled'], (result) => {
+      this.mnemonicsEnabled = result.mnemonicsEnabled || false;
+      this.updateHelpText();
+    });
   }
 
   createSearchUI() {
@@ -25,8 +36,29 @@ class TypeAheadFind {
     searchBox.id = 'typeahead-search-box';
     searchBox.innerHTML = '<span id="typeahead-prompt">/</span><span id="typeahead-query"></span><span id="typeahead-counter"></span>';
     
+    const helpText = document.createElement('div');
+    helpText.id = 'typeahead-help';
+    helpText.innerHTML = 'Type to search • ESC to exit';
+    
     this.searchContainer.appendChild(searchBox);
+    this.searchContainer.appendChild(helpText);
     document.body.appendChild(this.searchContainer);
+  }
+
+  updateHelpText() {
+    const helpText = document.getElementById('typeahead-help');
+    if (helpText) {
+      if (this.mnemonicsEnabled) {
+        const modifierKey = this.isMac() ? 'CMD' : 'Ctrl';
+        helpText.innerHTML = `Type to search • ${modifierKey}+letter for mnemonics • ESC to exit`;
+      } else {
+        helpText.innerHTML = 'Type to search • ESC to exit';
+      }
+    }
+  }
+
+  isMac() {
+    return navigator.platform.toUpperCase().indexOf('MAC') >= 0;
   }
 
   handleKeyDown(event) {
@@ -65,7 +97,12 @@ class TypeAheadFind {
         }
         break;
       default:
-        if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        if (this.mnemonicsEnabled && event.key.length === 1 && (event.metaKey || event.ctrlKey) && !event.altKey) {
+          const mnemonic = event.key.toLowerCase();
+          if (this.mnemonicMap.has(mnemonic)) {
+            this.followLinkByMnemonic(mnemonic);
+          }
+        } else if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
           this.addChar(event.key);
         }
         break;
@@ -96,6 +133,9 @@ class TypeAheadFind {
     this.searchContainer.style.display = 'block';
     this.updateSearchDisplay();
     this.findLinks();
+    if (this.mnemonicsEnabled) {
+      this.showMnemonics();
+    }
   }
 
   endSearch() {
@@ -105,6 +145,7 @@ class TypeAheadFind {
     
     this.searchContainer.style.display = 'none';
     this.clearHighlights();
+    this.clearMnemonics();
     
     if (this.originalActiveElement) {
       this.originalActiveElement.focus();
@@ -222,6 +263,71 @@ class TypeAheadFind {
     highlightedLinks.forEach(link => {
       link.classList.remove('typeahead-match', 'typeahead-selected');
     });
+  }
+
+  showMnemonics() {
+    this.clearMnemonics();
+    
+    const allLinks = document.querySelectorAll('a[href]');
+    let mnemonicIndex = 0;
+    
+    allLinks.forEach(link => {
+      if (mnemonicIndex >= 26) return;
+      
+      const mnemonic = String.fromCharCode(97 + mnemonicIndex);
+      this.mnemonicMap.set(mnemonic, link);
+      
+      const mnemonicElement = document.createElement('div');
+      mnemonicElement.className = 'typeahead-mnemonic';
+      mnemonicElement.textContent = mnemonic;
+      
+      // Position relative to the link's parent to follow scrolling
+      mnemonicElement.style.position = 'absolute';
+      mnemonicElement.style.zIndex = '1000000';
+      
+      // Insert the mnemonic as a positioned element relative to the link
+      const linkParent = link.offsetParent || document.body;
+      const linkOffset = this.getElementOffset(link);
+      
+      mnemonicElement.style.left = (linkOffset.left - linkParent.offsetLeft) + 'px';
+      mnemonicElement.style.top = (linkOffset.top - linkParent.offsetTop - 20) + 'px';
+      
+      linkParent.appendChild(mnemonicElement);
+      this.mnemonicElements.push(mnemonicElement);
+      
+      mnemonicIndex++;
+    });
+  }
+
+  getElementOffset(element) {
+    let top = 0;
+    let left = 0;
+    
+    while (element) {
+      top += element.offsetTop;
+      left += element.offsetLeft;
+      element = element.offsetParent;
+    }
+    
+    return { top, left };
+  }
+
+  clearMnemonics() {
+    this.mnemonicElements.forEach(element => {
+      if (element.parentNode) {
+        element.parentNode.removeChild(element);
+      }
+    });
+    this.mnemonicElements = [];
+    this.mnemonicMap.clear();
+  }
+
+  followLinkByMnemonic(mnemonic) {
+    const link = this.mnemonicMap.get(mnemonic);
+    if (link) {
+      this.endSearch();
+      link.click();
+    }
   }
 }
 
