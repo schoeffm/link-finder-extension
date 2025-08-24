@@ -1,4 +1,4 @@
-# Type-Ahead Find Extension for Microsoft Edge
+# Link-Finder Extension for Microsoft Edge
 
 A browser extension that allows you to quickly find and navigate to links on any webpage by typing `/` followed by your search term.
 

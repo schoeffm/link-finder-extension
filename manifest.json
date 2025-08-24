@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Type-Ahead Find",
+  "name": "Link-Finder",
   "version": "1.0.0",
   "description": "Find and navigate to links by typing / followed by search text",
   "permissions": [
@@ -17,7 +17,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Type-Ahead Find"
+    "default_title": "Link-Finder"
   },
   "icons": {
     "16": "icon16.png",
