@@ -44,6 +44,61 @@
       color: #007acc;
       font-weight: bold;
     }
+    
+    .settings {
+      border-top: 1px solid #eee;
+      margin-top: 15px;
+      padding-top: 15px;
+    }
+    
+    .settings h2 {
+      font-size: 14px;
+      margin: 0 0 10px 0;
+      color: #333;
+    }
+    
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    
+    .toggle {
+      position: relative;
+      width: 40px;
+      height: 20px;
+      background: #ccc;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .toggle.enabled {
+      background: #007acc;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    
+    .toggle.enabled .toggle-slider {
+      transform: translateX(20px);
+    }
+    
+    .toggle-label {
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -56,6 +111,19 @@
   <div class="feature">Type to search link text and URLs</div>
   <div class="feature">Use <span class="shortcut">↑</span> <span class="shortcut">↓</span> or <span class="shortcut">Tab</span> <span class="shortcut">Shift+Tab</span> to navigate</div>
   <div class="feature">Press <span class="shortcut">Enter</span> to follow selected link</div>
+  <div class="feature" id="mnemonic-feature" style="display: none;">Press <span class="shortcut">CMD+letter</span> (Mac) or <span class="shortcut">Ctrl+letter</span> (Windows) to instantly follow mnemonic links</div>
   <div class="feature">Press <span class="shortcut">Escape</span> to cancel</div>
+
+  <div class="settings">
+    <h2>Settings</h2>
+    <div class="toggle-container">
+      <div class="toggle" id="mnemonic-toggle">
+        <div class="toggle-slider"></div>
+      </div>
+      <span class="toggle-label" id="toggle-label">Enable mnemonic shortcuts</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
 </body>
 </html>
