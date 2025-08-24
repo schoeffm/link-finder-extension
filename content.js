@@ -23,7 +23,7 @@ class TypeAheadFind {
     
     const searchBox = document.createElement('div');
     searchBox.id = 'typeahead-search-box';
-    searchBox.innerHTML = '<span id="typeahead-prompt">/</span><span id="typeahead-query"></span>';
+    searchBox.innerHTML = '<span id="typeahead-prompt">/</span><span id="typeahead-query"></span><span id="typeahead-counter"></span>';
     
     this.searchContainer.appendChild(searchBox);
     document.body.appendChild(this.searchContainer);
@@ -56,6 +56,13 @@ class TypeAheadFind {
         break;
       case 'ArrowUp':
         this.selectPrevious();
+        break;
+      case 'Tab':
+        if (event.shiftKey) {
+          this.selectPrevious();
+        } else {
+          this.selectNext();
+        }
         break;
       default:
         if (event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
@@ -122,8 +129,22 @@ class TypeAheadFind {
 
   updateSearchDisplay() {
     const queryElement = document.getElementById('typeahead-query');
+    const counterElement = document.getElementById('typeahead-counter');
+    
     if (queryElement) {
       queryElement.textContent = this.searchString;
+    }
+    
+    if (counterElement) {
+      if (this.matchedLinks.length > 0) {
+        counterElement.textContent = ` (${this.selectedIndex + 1}/${this.matchedLinks.length})`;
+        counterElement.style.color = '#90ee90';
+      } else if (this.searchString.length > 0) {
+        counterElement.textContent = ' (0 matches)';
+        counterElement.style.color = '#ff6b6b';
+      } else {
+        counterElement.textContent = '';
+      }
     }
   }
 
@@ -152,6 +173,8 @@ class TypeAheadFind {
     if (this.matchedLinks.length > 0) {
       this.selectLink(0);
     }
+    
+    this.updateSearchDisplay();
   }
 
   selectLink(index) {
@@ -170,6 +193,7 @@ class TypeAheadFind {
       selectedLink.classList.add('typeahead-selected');
       selectedLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
       selectedLink.focus({ preventScroll: true });
+      this.updateSearchDisplay();
     }
   }
 

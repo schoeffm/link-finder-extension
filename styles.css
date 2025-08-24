@@ -30,27 +30,25 @@
   color: white;
 }
 
-/* Matched links styling */
+#typeahead-counter {
+  color: #90ee90;
+  font-size: 12px;
+  margin-left: 8px;
+  opacity: 0.9;
+}
+
+/* Matched links styling - subtle highlight */
 .typeahead-match {
-  background-color: rgba(255, 255, 0, 0.3) !important;
-  outline: 2px solid rgba(255, 255, 0, 0.5) !important;
+  outline: 1px solid rgba(255, 255, 0, 0.6) !important;
   outline-offset: 1px !important;
   border-radius: 2px !important;
-  transition: all 0.2s ease !important;
 }
 
-/* Selected link styling */
+/* Selected link styling - subtle blue rectangle */
 .typeahead-selected {
-  background-color: rgba(255, 165, 0, 0.4) !important;
-  outline: 2px solid #ff6500 !important;
-  outline-offset: 2px !important;
+  background-color: rgba(0, 122, 255, 0.15) !important;
+  outline: 2px solid rgba(0, 122, 255, 0.5) !important;
+  outline-offset: 1px !important;
   border-radius: 3px !important;
-  box-shadow: 0 0 8px rgba(255, 101, 0, 0.5) !important;
-}
-
-/* Ensure links remain clickable */
-.typeahead-match,
-.typeahead-selected {
-  position: relative !important;
-  z-index: 1 !important;
+  box-shadow: 0 0 0 1px rgba(0, 122, 255, 0.3) !important;
 }

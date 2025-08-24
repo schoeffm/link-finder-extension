@@ -33,8 +33,8 @@ A browser extension that allows you to quickly find and navigate to links on any
 
 - `/` - Activate search mode
 - `Type` - Search for links
-- `↑` - Select previous link
-- `↓` - Select next link
+- `↑` / `Shift+Tab` - Select previous link
+- `↓` / `Tab` - Select next link
 - `Enter` - Follow selected link
 - `Escape` - Cancel search
 - `Backspace` - Remove last character (or exit if search is empty)
